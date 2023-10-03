@@ -12,17 +12,17 @@ public class LexerHelper {
 		return -1;
 	}
 
-    public static Object lexemeToReal(String text) {
+	public static Object lexemeToReal(String text) {
 		try {
-			return Integer.parseInt(text);
+			return Double.parseDouble(text); // Corrected this line
 		}
 		catch(NumberFormatException e) {
 			System.out.println(e);
 		}
 		return -1;
-    }
+	}
 
-	public static Object lexemeToChar(String text) {
+	public static Character lexemeToChar(String text) {
 		if (text == null || text.length() < 2) {
 			throw new IllegalArgumentException("Invalid character constant: " + text);
 		}
@@ -43,11 +43,17 @@ public class LexerHelper {
 			case "\\'": return '\'';
 			case "\\\\": return '\\';
 			default:
-				throw new IllegalArgumentException("Unknown escape sequence: " + inner);
+				// Handle octal escape sequences
+				if (inner.matches("\\\\[0-7]{1,3}")) {
+					try {
+						int octalValue = Integer.parseInt(inner.substring(1), 8);
+						return (char) octalValue;
+					} catch (NumberFormatException e) {
+						throw new IllegalArgumentException("Invalid octal escape sequence: " + inner, e);
+					}
+				} else {
+					throw new IllegalArgumentException("Unknown escape sequence: " + inner);
+				}
 		}
 	}
-
-
-	// TODO: Implement the lexemeToChar and lexemeToReal methods
-	
 }
